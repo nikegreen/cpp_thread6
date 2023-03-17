@@ -70,16 +70,21 @@ SimpleTimer::~SimpleTimer()
 }
 
 
+mutex mutex1;
+
 void Print(char ch) 
 {
+	mutex1.lock();
 	for (int i = 0; i < 6; ++i) 
 	{
 		for (int j = 0; j < 9; j++)
 		{
 			std::cout << ch;
+			this_thread::sleep_for(chrono::milliseconds(100)); //имитация долгих вычислений
 		}
 		std::cout << endl;
 	}
+	mutex1.unlock();
 }
 
 int main()
@@ -105,14 +110,19 @@ int main()
 	//thread t3(static_cast<void (MyClass::*)(int&)>(&MyClass::DoWork), std::ref(m2), 5);
 	//	thread t3(&MyClass::DoWork, m2);
 
-	for (int i = 0; i < 20; i++)
-	{
-		std::cout << "id потока = " << this_thread::get_id() << " i=" << i << endl;
-		this_thread::sleep_for(chrono::milliseconds(1000));
-	}
+	thread t4(&Print, '*');
+	thread t5(&Print, 'x');
+
+//	for (int i = 0; i < 20; i++)
+//	{
+//		std::cout << "id потока = " << this_thread::get_id() << " i=" << i << endl;
+//		this_thread::sleep_for(chrono::milliseconds(1000));
+//	}
 
 	t.join();
 	t2.join();
+	t4.join();
+	t5.join();
 	//t3.join();
 	std::cout << "result=" << result << endl;
 	std::cout << "finish main" << endl;
